@@ -7,14 +7,22 @@ export const stopSpeech = () => {
   speaking = false;
 };
 
-// 🔊 FULL TEXT (SAFE VERSION)
-export const speakText = async (text: string, rate = 0.9) => {
+// 🔊 Speak a single word (for word tap / synonym tap)
+export const speakWord = (word: string, rate = 0.9) => {
   stopSpeech();
+  Speech.speak(word, {
+    language: "de-DE",
+    rate,
+  });
+};
 
-  return new Promise<void>((resolve) => {
+// 🔊 Speak one sentence and wait until it finishes naturally
+// Returns a promise that resolves when done or stopped
+export const speakSentence = (sentence: string, rate = 0.9): Promise<void> => {
+  stopSpeech();
+  return new Promise((resolve) => {
     speaking = true;
-
-    Speech.speak(text, {
+    Speech.speak(sentence, {
       language: "de-DE",
       rate,
       onDone: () => {
@@ -25,16 +33,10 @@ export const speakText = async (text: string, rate = 0.9) => {
         speaking = false;
         resolve();
       },
+      onError: () => {
+        speaking = false;
+        resolve();
+      },
     });
-  });
-};
-
-// 🔊 WORD (safe)
-export const speakWord = (word: string, rate = 0.9) => {
-  stopSpeech();
-
-  Speech.speak(word, {
-    language: "de-DE",
-    rate,
   });
 };
